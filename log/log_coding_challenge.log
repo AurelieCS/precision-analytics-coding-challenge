@@ -1,0 +1,672 @@
+---------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/aureliecote-sergent/Dropbox (Personal)/Emplois/Precision Analytics/
+> fertility-challenge/log/log_coding_challenge.log
+  log type:  text
+ opened on:  29 Aug 2019, 08:39:56
+
+. 
+. 
+. ******************************************************************
+. *                    CODING CHALLENGE QUESTION 1                                 * 
+. ******************************************************************
+. 
+. *Import datasets
+. foreach file_years in "1995-2002" "2003-2006" "2007-2017" {
+  2.         clear
+  3. 
+.         import delimited "raw/Natality, `file_years'.txt", delimiters(tab)
+  4.         
+.         *Add data column to keep track of source file
+.         gen source_file_year="`file_years'"
+  5.         
+.         save "import/natality_`file_years'.dta", replace
+  6.         
+. }
+(6 vars, 502 obs)
+file import/natality_1995-2002.dta saved
+(10 vars, 317 obs)
+file import/natality_2003-2006.dta saved
+(10 vars, 654 obs)
+file import/natality_2007-2017.dta saved
+
+. 
+. *Append datasets
+. use "import/natality_1995-2002.dta", clear 
+
+. 
+. foreach file in "2003-2006" "2007-2017" {
+  2.            append using "import/natality_`file'"
+  3. }
+(note: variable notes was str127, now str128 to accommodate using data's values)
+(note: variable totalpopulation was long, now double to accommodate using data's
+       values)
+
+. 
+. *Sort by state and year
+. sort state year
+
+. 
+. *Order variables
+. order state statecode year yearcode births totalpopulation birthrate femalepopulation
+>  fertilityrate source_file_year notes
+
+. 
+. 
+. ******************************************************************
+. *                    CODING CHALLENGE QUESTION 2                                 * 
+. ******************************************************************
+. 
+. *Drop observations that are missing for everything besides notes
+. #delimit ;
+delimiter now ;
+. drop if missing(state) & missing(statecode) & missing(year) & missing(yearcode)
+>                 & missing(births) & missing(totalpopulation) & missing(birthrate)
+>                 & missing(femalepopulation) & missing(fertilityrate);
+(144 observations deleted)
+
+. #delimit cr;
+delimiter now cr
+. 
+. 
+. *Make sure that states have the same statecodes in each raw source file
+. bysort state: egen max_statecode = max(statecode) // Find maxmimum value of statecode
+>  by state name
+(3 missing values generated)
+
+. bysort state: egen min_statecode = min(statecode) // Find minimum value of statecode 
+> by state name
+(3 missing values generated)
+
+. gen flag_different_statecode = (max_statecode !=min_statecode) // Flag if these 2 val
+> ues are different
+
+. 
+. tab flag_different_statecode // States have the same statecode in each raw source fil
+> e - OK
+
+flag_differ |
+ent_stateco |
+         de |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,329      100.00      100.00
+------------+-----------------------------------
+      Total |      1,329      100.00
+
+.                 
+. *Check frequencies and missing values for categorical variables
+. * - 50 states + District of Columbia for all years, and 156 missing values, which sho
+> uld correspond to total per state
+. * - 23 years per state and 3 missing values that should correspond to the total for a
+> ll states
+. foreach var of varlist state  statecode year yearcode {
+  2. tab `var', m
+  3. }
+
+               State |      Freq.     Percent        Cum.
+---------------------+-----------------------------------
+                     |          3        0.23        0.23
+             Alabama |         26        1.96        2.18
+              Alaska |         26        1.96        4.14
+             Arizona |         26        1.96        6.09
+            Arkansas |         26        1.96        8.05
+          California |         26        1.96       10.01
+            Colorado |         26        1.96       11.96
+         Connecticut |         26        1.96       13.92
+            Delaware |         26        1.96       15.88
+District of Columbia |         26        1.96       17.83
+             Florida |         26        1.96       19.79
+             Georgia |         26        1.96       21.75
+              Hawaii |         26        1.96       23.70
+               Idaho |         26        1.96       25.66
+            Illinois |         26        1.96       27.61
+             Indiana |         26        1.96       29.57
+                Iowa |         26        1.96       31.53
+              Kansas |         26        1.96       33.48
+            Kentucky |         26        1.96       35.44
+           Louisiana |         26        1.96       37.40
+               Maine |         26        1.96       39.35
+            Maryland |         26        1.96       41.31
+       Massachusetts |         26        1.96       43.27
+            Michigan |         26        1.96       45.22
+           Minnesota |         26        1.96       47.18
+         Mississippi |         26        1.96       49.13
+            Missouri |         26        1.96       51.09
+             Montana |         26        1.96       53.05
+            Nebraska |         26        1.96       55.00
+              Nevada |         26        1.96       56.96
+       New Hampshire |         26        1.96       58.92
+          New Jersey |         26        1.96       60.87
+          New Mexico |         26        1.96       62.83
+            New York |         26        1.96       64.79
+      North Carolina |         26        1.96       66.74
+        North Dakota |         26        1.96       68.70
+                Ohio |         26        1.96       70.65
+            Oklahoma |         26        1.96       72.61
+              Oregon |         26        1.96       74.57
+        Pennsylvania |         26        1.96       76.52
+        Rhode Island |         26        1.96       78.48
+      South Carolina |         26        1.96       80.44
+        South Dakota |         26        1.96       82.39
+           Tennessee |         26        1.96       84.35
+               Texas |         26        1.96       86.31
+                Utah |         26        1.96       88.26
+             Vermont |         26        1.96       90.22
+            Virginia |         26        1.96       92.17
+          Washington |         26        1.96       94.13
+       West Virginia |         26        1.96       96.09
+           Wisconsin |         26        1.96       98.04
+             Wyoming |         26        1.96      100.00
+---------------------+-----------------------------------
+               Total |      1,329      100.00
+
+ State Code |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |         26        1.96        1.96
+          2 |         26        1.96        3.91
+          4 |         26        1.96        5.87
+          5 |         26        1.96        7.83
+          6 |         26        1.96        9.78
+          8 |         26        1.96       11.74
+          9 |         26        1.96       13.69
+         10 |         26        1.96       15.65
+         11 |         26        1.96       17.61
+         12 |         26        1.96       19.56
+         13 |         26        1.96       21.52
+         15 |         26        1.96       23.48
+         16 |         26        1.96       25.43
+         17 |         26        1.96       27.39
+         18 |         26        1.96       29.35
+         19 |         26        1.96       31.30
+         20 |         26        1.96       33.26
+         21 |         26        1.96       35.21
+         22 |         26        1.96       37.17
+         23 |         26        1.96       39.13
+         24 |         26        1.96       41.08
+         25 |         26        1.96       43.04
+         26 |         26        1.96       45.00
+         27 |         26        1.96       46.95
+         28 |         26        1.96       48.91
+         29 |         26        1.96       50.87
+         30 |         26        1.96       52.82
+         31 |         26        1.96       54.78
+         32 |         26        1.96       56.73
+         33 |         26        1.96       58.69
+         34 |         26        1.96       60.65
+         35 |         26        1.96       62.60
+         36 |         26        1.96       64.56
+         37 |         26        1.96       66.52
+         38 |         26        1.96       68.47
+         39 |         26        1.96       70.43
+         40 |         26        1.96       72.39
+         41 |         26        1.96       74.34
+         42 |         26        1.96       76.30
+         44 |         26        1.96       78.25
+         45 |         26        1.96       80.21
+         46 |         26        1.96       82.17
+         47 |         26        1.96       84.12
+         48 |         26        1.96       86.08
+         49 |         26        1.96       88.04
+         50 |         26        1.96       89.99
+         51 |         26        1.96       91.95
+         53 |         26        1.96       93.91
+         54 |         26        1.96       95.86
+         55 |         26        1.96       97.82
+         56 |         26        1.96       99.77
+          . |          3        0.23      100.00
+------------+-----------------------------------
+      Total |      1,329      100.00
+
+       Year |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       1995 |         51        3.84        3.84
+       1996 |         51        3.84        7.67
+       1997 |         51        3.84       11.51
+       1998 |         51        3.84       15.35
+       1999 |         51        3.84       19.19
+       2000 |         51        3.84       23.02
+       2001 |         51        3.84       26.86
+       2002 |         51        3.84       30.70
+       2003 |         51        3.84       34.54
+       2004 |         51        3.84       38.37
+       2005 |         51        3.84       42.21
+       2006 |         51        3.84       46.05
+       2007 |         51        3.84       49.89
+       2008 |         51        3.84       53.72
+       2009 |         51        3.84       57.56
+       2010 |         51        3.84       61.40
+       2011 |         51        3.84       65.24
+       2012 |         51        3.84       69.07
+       2013 |         51        3.84       72.91
+       2014 |         51        3.84       76.75
+       2015 |         51        3.84       80.59
+       2016 |         51        3.84       84.42
+       2017 |         51        3.84       88.26
+          . |        156       11.74      100.00
+------------+-----------------------------------
+      Total |      1,329      100.00
+
+  Year Code |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       1995 |         51        3.84        3.84
+       1996 |         51        3.84        7.67
+       1997 |         51        3.84       11.51
+       1998 |         51        3.84       15.35
+       1999 |         51        3.84       19.19
+       2000 |         51        3.84       23.02
+       2001 |         51        3.84       26.86
+       2002 |         51        3.84       30.70
+       2003 |         51        3.84       34.54
+       2004 |         51        3.84       38.37
+       2005 |         51        3.84       42.21
+       2006 |         51        3.84       46.05
+       2007 |         51        3.84       49.89
+       2008 |         51        3.84       53.72
+       2009 |         51        3.84       57.56
+       2010 |         51        3.84       61.40
+       2011 |         51        3.84       65.24
+       2012 |         51        3.84       69.07
+       2013 |         51        3.84       72.91
+       2014 |         51        3.84       76.75
+       2015 |         51        3.84       80.59
+       2016 |         51        3.84       84.42
+       2017 |         51        3.84       88.26
+          . |        156       11.74      100.00
+------------+-----------------------------------
+      Total |      1,329      100.00
+
+. 
+. *Confirm that missing values for state, statecode, year and yearcode correspond to th
+> e total values - OK
+. foreach var of varlist state  statecode year yearcode {
+  2.         di "Variable is `var'"
+  3.         tab note if missing(`var')
+  4. }
+Variable is state
+
+                                  Notes |      Freq.     Percent        Cum.
+----------------------------------------+-----------------------------------
+                                  Total |          3      100.00      100.00
+----------------------------------------+-----------------------------------
+                                  Total |          3      100.00
+Variable is statecode
+
+                                  Notes |      Freq.     Percent        Cum.
+----------------------------------------+-----------------------------------
+                                  Total |          3      100.00      100.00
+----------------------------------------+-----------------------------------
+                                  Total |          3      100.00
+Variable is year
+
+                                  Notes |      Freq.     Percent        Cum.
+----------------------------------------+-----------------------------------
+                                  Total |        156      100.00      100.00
+----------------------------------------+-----------------------------------
+                                  Total |        156      100.00
+Variable is yearcode
+
+                                  Notes |      Freq.     Percent        Cum.
+----------------------------------------+-----------------------------------
+                                  Total |        156      100.00      100.00
+----------------------------------------+-----------------------------------
+                                  Total |        156      100.00
+
+. 
+. * Check mean, median, standard deviation, minimimum, and maximum values for continuou
+> s variables
+. * - All values are positive (>0) - OK
+. sum births totalpopulation birthrate femalepopulation fertilityrate
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+      births |      1,329    208997.4     1589014       5655   4.43e+07
+totalpopul~n |        869    1.60e+07    1.26e+08     503453   3.45e+09
+   birthrate |        869    13.13803    1.779006       9.02      21.22
+femalepopu~n |        869     3245987    2.54e+07     101425   6.92e+08
+fertilityr~e |        869    65.19507    7.430021      49.67      95.67
+
+.  
+. *For continuous variables, create and look at variable for number of missing values
+. * - No missing values for births - OK
+. foreach var of varlist  births totalpopulation birthrate femalepopulation fertilityra
+> te {
+  2.         egen mis_`var' = rowmiss(`var')
+  3.         tab mis_`var'
+  4. }
+
+ mis_births |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,329      100.00      100.00
+------------+-----------------------------------
+      Total |      1,329      100.00
+
+mis_totalpo |
+   pulation |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        869       65.39       65.39
+          1 |        460       34.61      100.00
+------------+-----------------------------------
+      Total |      1,329      100.00
+
+mis_birthra |
+         te |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        869       65.39       65.39
+          1 |        460       34.61      100.00
+------------+-----------------------------------
+      Total |      1,329      100.00
+
+mis_femalep |
+  opulation |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        869       65.39       65.39
+          1 |        460       34.61      100.00
+------------+-----------------------------------
+      Total |      1,329      100.00
+
+mis_fertili |
+     tyrate |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        869       65.39       65.39
+          1 |        460       34.61      100.00
+------------+-----------------------------------
+      Total |      1,329      100.00
+
+.  
+. * Check that missing values for totalpopulation, birthrate, femalepopulation, and fer
+> tilityrate
+. * correspond to the 1995-2002 source file - OK
+. foreach var of varlist mis_totalpopulation mis_birthrate mis_femalepopulation mis_fer
+> tilityrate {
+  2.         di "Variable is `var'"
+  3.         tab source_file_year if `var'==1
+  4. }
+Variable is mis_totalpopulation
+
+source_file |
+      _year |      Freq.     Percent        Cum.
+------------+-----------------------------------
+  1995-2002 |        460      100.00      100.00
+------------+-----------------------------------
+      Total |        460      100.00
+Variable is mis_birthrate
+
+source_file |
+      _year |      Freq.     Percent        Cum.
+------------+-----------------------------------
+  1995-2002 |        460      100.00      100.00
+------------+-----------------------------------
+      Total |        460      100.00
+Variable is mis_femalepopulation
+
+source_file |
+      _year |      Freq.     Percent        Cum.
+------------+-----------------------------------
+  1995-2002 |        460      100.00      100.00
+------------+-----------------------------------
+      Total |        460      100.00
+Variable is mis_fertilityrate
+
+source_file |
+      _year |      Freq.     Percent        Cum.
+------------+-----------------------------------
+  1995-2002 |        460      100.00      100.00
+------------+-----------------------------------
+      Total |        460      100.00
+
+.  
+.  *Drop totals per state and for all states, since they will not be needed in the rema
+> ining analyses
+.  drop if notes =="Total"
+(156 observations deleted)
+
+.  
+.  *Drop variables used to do checks to keep dataset clean
+.  drop mis_* max_statecode min_statecode flag_different_statecode
+
+.   
+. *Add data labels
+. label var source_file_year "Years of source natality file"
+
+. 
+. *Save clean data
+. save clean/natality.dta, replace
+file clean/natality.dta saved
+
+. 
+. ******************************************************************
+. *                    CODING CHALLENGE QUESTION 3                                 * 
+. ******************************************************************
+. 
+. *Use clean data
+. use clean/natality.dta, clear
+
+. 
+. *Find state with highest average births over all years
+. bysort state: egen mean_births = mean(births) //Average births per state, over all ye
+> ars
+
+. egen max_births = max(mean_births) //Maximum value of average births
+
+. gen flag_state_max_birth = statecode if max_births==mean_births //Identify state with
+>  the maximum value of average births
+(1,150 missing values generated)
+
+. 
+. *Save the statecode with the highest average births for use in figure
+. sum flag_state_max_birth
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+flag_state~h |         23           6           0          6          6
+
+. global state_max_birth =r(max)
+
+. 
+. *Births in thousands
+. gen births_thousand = births/1e3
+
+. 
+. *Identifying labels for the state with the highest average birth for display in figur
+> e legend
+. egen legend_statecode =group(statecode)
+
+. sum legend_statecode if statecode==$state_max_birth
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+legend_sta~e |         23           5           0          5          5
+
+. global legend_high_statecode =r(max)
+
+. 
+. gen line_number =_n
+
+. egen line_high_statename = min(line_number) if statecode == $state_max_birth
+(1150 missing values generated)
+
+. sum line_high_statename
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+line_high_~e |         23          93           0         93         93
+
+. local legend_high_statename = state[r(max)]
+
+. 
+. *Create graph
+. levelsof statecode, local(states) 
+1 2 4 5 6 8 9 10 11 12 13 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 3
+> 5 36 37 38 39 40 41 42 44 45 46 47 48 49 50 51 53 54 55 56
+
+. foreach i of local states  {
+  2.         *The highest value to be displayed in red, all other states in grey
+.         local color= cond(`i'==$state_max_birth, "red", "gs12")
+  3.         
+.         *The highest value to be displayed using a thicker line
+.         local width= cond(`i'==$state_max_birth, "medthick", "medium")
+  4. 
+.         local graphs `graphs' (line births_thousand year if statecode == `i', lcolor(
+> `color') lw(`width'))
+  5.         
+. }
+
+. graph twoway `graphs', legend(order($legend_high_statecode "`legend_high_statename'" 
+> 6 "Other States and District of Columbia")) graphregion(color(white)) ytitle("Births 
+> (in thousands)") ///
+> ylabel(0(100)600) xtitle("Years") title("Number of Births (in Thousands), by State an
+> d Year")  ///
+> note("Data Source: CDC Wonder’s online open access data portal, United States, 1995-2
+> 017") name("births_state_year", replace) 
+
+. 
+. *Export graph
+. graph export figures/births_per_year_and_state.png, as(png) replace
+(file figures/births_per_year_and_state.png written in PNG format)
+
+. 
+. *Drop variables used to do checks to keep dataset clean
+. drop mean_births max_births flag_state_max_birth births_thousand legend_statecode lin
+> e_high_statename line_number
+
+. 
+. ******************************************************************
+. *                    CODING CHALLENGE QUESTION 4                                 * 
+. ******************************************************************
+. 
+. *Check if birthrate is normally distributed
+. hist birthrate, graphregion(color(white)) bcolor(navy) title("Distribution of Birth R
+> ates")
+(bin=27, start=9.0200005, width=.45185181)
+
+. 
+. *export graph
+. graph export figures/distribution_birth_rates.png, as (png) replace
+(file figures/distribution_birth_rates.png written in PNG format)
+
+. 
+. *Perform linear regression, with dummies for state and year
+. reg birthrate ib1.statecode ib2003.year, cluster(statecode)
+
+Linear regression                               Number of obs     =        765
+                                                F(13, 50)         =          .
+                                                Prob > F          =          .
+                                                R-squared         =     0.9314
+                                                Root MSE          =     .48894
+
+                             (Std. Err. adjusted for 51 clusters in statecode)
+------------------------------------------------------------------------------
+             |               Robust
+   birthrate |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+   statecode |
+          2  |   2.889333   2.77e-14  1.0e+14   0.000     2.889333    2.889333
+          4  |      1.614   2.77e-14  5.8e+13   0.000        1.614       1.614
+          5  |   .7126667   2.77e-14  2.6e+13   0.000     .7126667    .7126667
+          6  |   1.190667   2.78e-14  4.3e+13   0.000     1.190667    1.190667
+          8  |   .6693333   2.78e-14  2.4e+13   0.000     .6693333    .6693333
+          9  |  -1.894667   2.77e-14 -6.8e+13   0.000    -1.894667   -1.894667
+         10  |  -.0506666   2.77e-14 -1.8e+12   0.000    -.0506666   -.0506666
+         11  |   1.828667   2.77e-14  6.6e+13   0.000     1.828667    1.828667
+         12  |  -1.021333   2.77e-14 -3.7e+13   0.000    -1.021333   -1.021333
+         13  |   1.494667   2.77e-14  5.4e+13   0.000     1.494667    1.494667
+         15  |   .9566668   2.78e-14  3.4e+13   0.000     .9566668    .9566668
+         16  |      2.168   2.77e-14  7.8e+13   0.000        2.168       2.168
+         17  |   .3586667   2.77e-14  1.3e+13   0.000     .3586667    .3586667
+         18  |   .4566666   2.77e-14  1.6e+13   0.000     .4566666    .4566666
+         19  |       .118   2.78e-14  4.2e+12   0.000         .118        .118
+         20  |   1.283333   2.78e-14  4.6e+13   0.000     1.283333    1.283333
+         21  |   .2919999   2.77e-14  1.1e+13   0.000     .2919999    .2919999
+         22  |       1.21   2.78e-14  4.4e+13   0.000         1.21        1.21
+         23  |     -2.788   2.77e-14 -1.0e+14   0.000       -2.788      -2.788
+         24  |   .0986668   2.77e-14  3.6e+12   0.000     .0986668    .0986668
+         25  |  -1.437333   2.77e-14 -5.2e+13   0.000    -1.437333   -1.437333
+         26  |  -.8166665   2.78e-14 -2.9e+13   0.000    -.8166665   -.8166665
+         27  |   .4766668   2.78e-14  1.7e+13   0.000     .4766668    .4766668
+         28  |   1.174667   2.77e-14  4.2e+13   0.000     1.174667    1.174667
+         29  |   .2026667   2.78e-14  7.3e+12   0.000     .2026667    .2026667
+         30  |  -.4926667   2.77e-14 -1.8e+13   0.000    -.4926667   -.4926667
+         31  |   1.659333   2.77e-14  6.0e+13   0.000     1.659333    1.659333
+         32  |      1.002   2.77e-14  3.6e+13   0.000        1.002       1.002
+         33  |     -2.714   2.77e-14 -9.8e+13   0.000       -2.714      -2.714
+         34  |      -.416   2.78e-14 -1.5e+13   0.000        -.416       -.416
+         35  |       .876   2.77e-14  3.2e+13   0.000         .876        .876
+         36  |  -.2333333   2.77e-14 -8.4e+12   0.000    -.2333333   -.2333333
+         37  |   .2713334   2.77e-14  9.8e+12   0.000     .2713334    .2713334
+         38  |      1.096   2.77e-14  3.9e+13   0.000        1.096       1.096
+         39  |  -.3559999   2.78e-14 -1.3e+13   0.000    -.3559999   -.3559999
+         40  |      1.392   2.77e-14  5.0e+13   0.000        1.392       1.392
+         41  |  -.6879999   2.77e-14 -2.5e+13   0.000    -.6879999   -.6879999
+         42  |     -1.386   2.77e-14 -5.0e+13   0.000       -1.386      -1.386
+         44  |  -1.824667   2.78e-14 -6.6e+13   0.000    -1.824667   -1.824667
+         45  |  -.0186665   2.77e-14 -6.7e+11   0.000    -.0186665   -.0186665
+         46  |   1.838667   2.77e-14  6.6e+13   0.000     1.838667    1.838667
+         47  |   .1486668   2.78e-14  5.4e+12   0.000     .1486668    .1486668
+         48  |      2.876   2.77e-14  1.0e+14   0.000        2.876       2.876
+         49  |   6.249333   2.80e-14  2.2e+14   0.000     6.249333    6.249333
+         50  |  -2.880667   2.78e-14 -1.0e+14   0.000    -2.880667   -2.880667
+         51  |   .2606667   2.78e-14  9.4e+12   0.000     .2606667    .2606667
+         53  |   .1553333   2.77e-14  5.6e+12   0.000     .1553333    .1553333
+         54  |  -1.570667   2.77e-14 -5.7e+13   0.000    -1.570667   -1.570667
+         55  |  -.5953333   2.77e-14 -2.1e+13   0.000    -.5953333   -.5953333
+         56  |   .7246668   2.77e-14  2.6e+13   0.000     .7246668    .7246668
+             |
+        year |
+       2004  |  -.0166666   .0238907    -0.70   0.489    -.0646526    .0313194
+       2005  |  -.0511764   .0468643    -1.09   0.280    -.1453062    .0429534
+       2006  |   .2894119   .0659766     4.39   0.000      .156894    .4219298
+       2007  |   .3376472   .0755774     4.47   0.000     .1858455    .4894489
+       2008  |   .0454902   .0906533     0.50   0.618    -.1365922    .2275727
+       2009  |  -.4411763   .1003296    -4.40   0.000    -.6426942   -.2396585
+       2010  |  -.8990196   .1170875    -7.68   0.000    -1.134197   -.6638425
+       2011  |  -1.130588   .1318223    -8.58   0.000    -1.395361   -.8658153
+       2012  |  -1.219608   .1415506    -8.62   0.000    -1.503921   -.9352951
+       2013  |   -1.34902   .1515846    -8.90   0.000    -1.653486   -1.044553
+       2014  |  -1.302745   .1598971    -8.15   0.000    -1.623908   -.9815822
+       2015  |  -1.411961   .1615484    -8.74   0.000     -1.73644   -1.087481
+       2016  |  -1.592549   .1696776    -9.39   0.000    -1.933357   -1.251741
+       2017  |  -1.970196   .1703296   -11.57   0.000    -2.312313   -1.628079
+             |
+       _cons |   13.49881   .0976593   138.22   0.000     13.30266    13.69496
+------------------------------------------------------------------------------
+
+. 
+. *Export results
+. outreg2 using tables/regression_results.xls, replace label
+tables/regression_results.xls
+dir : seeout
+
+. 
+. *Test significance of all years together - significant
+. testparm i.(year)
+
+ ( 1)  2004.year = 0
+ ( 2)  2005.year = 0
+ ( 3)  2006.year = 0
+ ( 4)  2007.year = 0
+ ( 5)  2008.year = 0
+ ( 6)  2009.year = 0
+ ( 7)  2010.year = 0
+ ( 8)  2011.year = 0
+ ( 9)  2012.year = 0
+ (10)  2013.year = 0
+ (11)  2014.year = 0
+ (12)  2015.year = 0
+ (13)  2016.year = 0
+ (14)  2017.year = 0
+
+       F( 14,    50) =   41.35
+            Prob > F =    0.0000
+
+. 
+. 
+. 
+. 
+. *Close log
+. log close
+      name:  <unnamed>
+       log:  /Users/aureliecote-sergent/Dropbox (Personal)/Emplois/Precision Analytics/
+> fertility-challenge/log/log_coding_challenge.log
+  log type:  text
+ closed on:  29 Aug 2019, 08:40:09
+---------------------------------------------------------------------------------------

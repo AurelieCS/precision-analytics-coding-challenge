@@ -1,0 +1,138 @@
+		(1)
+VARIABLES	LABELS	Birth Rate
+		
+2.statecode	State Code = 2	2.889***
+		(0)
+4.statecode	State Code = 4	1.614***
+		(0)
+5.statecode	State Code = 5	0.713***
+		(0)
+6.statecode	State Code = 6	1.191***
+		(0)
+8.statecode	State Code = 8	0.669***
+		(0)
+9.statecode	State Code = 9	-1.895***
+		(0)
+10.statecode	State Code = 10	-0.0507***
+		(0)
+11.statecode	State Code = 11	1.829***
+		(0)
+12.statecode	State Code = 12	-1.021***
+		(0)
+13.statecode	State Code = 13	1.495***
+		(0)
+15.statecode	State Code = 15	0.957***
+		(0)
+16.statecode	State Code = 16	2.168***
+		(0)
+17.statecode	State Code = 17	0.359***
+		(0)
+18.statecode	State Code = 18	0.457***
+		(0)
+19.statecode	State Code = 19	0.118***
+		(0)
+20.statecode	State Code = 20	1.283***
+		(0)
+21.statecode	State Code = 21	0.292***
+		(0)
+22.statecode	State Code = 22	1.210***
+		(0)
+23.statecode	State Code = 23	-2.788***
+		(0)
+24.statecode	State Code = 24	0.0987***
+		(0)
+25.statecode	State Code = 25	-1.437***
+		(0)
+26.statecode	State Code = 26	-0.817***
+		(0)
+27.statecode	State Code = 27	0.477***
+		(0)
+28.statecode	State Code = 28	1.175***
+		(0)
+29.statecode	State Code = 29	0.203***
+		(0)
+30.statecode	State Code = 30	-0.493***
+		(0)
+31.statecode	State Code = 31	1.659***
+		(0)
+32.statecode	State Code = 32	1.002***
+		(0)
+33.statecode	State Code = 33	-2.714***
+		(0)
+34.statecode	State Code = 34	-0.416***
+		(0)
+35.statecode	State Code = 35	0.876***
+		(0)
+36.statecode	State Code = 36	-0.233***
+		(0)
+37.statecode	State Code = 37	0.271***
+		(0)
+38.statecode	State Code = 38	1.096***
+		(0)
+39.statecode	State Code = 39	-0.356***
+		(0)
+40.statecode	State Code = 40	1.392***
+		(0)
+41.statecode	State Code = 41	-0.688***
+		(0)
+42.statecode	State Code = 42	-1.386***
+		(0)
+44.statecode	State Code = 44	-1.825***
+		(0)
+45.statecode	State Code = 45	-0.0187***
+		(0)
+46.statecode	State Code = 46	1.839***
+		(0)
+47.statecode	State Code = 47	0.149***
+		(0)
+48.statecode	State Code = 48	2.876***
+		(0)
+49.statecode	State Code = 49	6.249***
+		(0)
+50.statecode	State Code = 50	-2.881***
+		(0)
+51.statecode	State Code = 51	0.261***
+		(0)
+53.statecode	State Code = 53	0.155***
+		(0)
+54.statecode	State Code = 54	-1.571***
+		(0)
+55.statecode	State Code = 55	-0.595***
+		(0)
+56.statecode	State Code = 56	0.725***
+		(0)
+2004.year	Year = 2004	-0.0167
+		(0.0239)
+2005.year	Year = 2005	-0.0512
+		(0.0469)
+2006.year	Year = 2006	0.289***
+		(0.0660)
+2007.year	Year = 2007	0.338***
+		(0.0756)
+2008.year	Year = 2008	0.0455
+		(0.0907)
+2009.year	Year = 2009	-0.441***
+		(0.100)
+2010.year	Year = 2010	-0.899***
+		(0.117)
+2011.year	Year = 2011	-1.131***
+		(0.132)
+2012.year	Year = 2012	-1.220***
+		(0.142)
+2013.year	Year = 2013	-1.349***
+		(0.152)
+2014.year	Year = 2014	-1.303***
+		(0.160)
+2015.year	Year = 2015	-1.412***
+		(0.162)
+2016.year	Year = 2016	-1.593***
+		(0.170)
+2017.year	Year = 2017	-1.970***
+		(0.170)
+Constant	Constant	13.50***
+		(0.0977)
+		
+Observations		765
+R-squared		0.931
+Robust standard errors in parentheses		
+*** p<0.01, ** p<0.05, * p<0.1		
